@@ -10,22 +10,18 @@
 
 <body>
   <script>
-    new Promise((resolve, reject) => {
-      setTimeout(() => {
-        console.log('resolve 1')
-        resolve(1)
-      }, 2000);
-    }).then(
-      res => (new Promise((resolve, reject) => {
-        setTimeout(() => {
-          console.log('resolve 2')
-          resolve(2)
-        }, 1000);
-      }))
-    ).then(
-      res => console.log(res)
-    )
+   new Promise((resolve,reject) => {
+     resolve(1)
+   }).then().then(
+     res => console.log(res)
+   )
 
+   new Promise((resolve,reject) => {
+     reject(new Error('骗你的'))
+   }).then().then(
+     res => console.log(res),
+     reason => console.log(reason)
+   )
   </script>
 </body>
 

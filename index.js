@@ -61,84 +61,55 @@ const
   // 返回新的Promise，新状态由onResolved或者onRejected的返回值决定
   Promise.prototype.then = function (onResolved, onRejected) {
 
-    const self = this
+    onResolved = typeof onResolved === 'function' ? onResolved : value => value
+    onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason }
 
+    const self = this
 
     // 想要返回的新的Promise状态改变，要使用resove/reject,所以把整个代码放到里面
     return new Promise((resovle, reject) => {
+      function handle(callback) {
+        /**
+        * 对于结果的result的处理分三种情况
+        * 1. onResolved执行出错 -> 使用try-catch捕获 后 reject
+        * 2. result 为一个非Promise值 直接resolve(result)
+        * 3. result 为一个Promise值 那么将要返回的新Promise的值就是result执行的结果
+        */
+        try {
+          const result = callback(self.data)
+          if (result instanceof Promise) {
+            result.then(
+              value => resovle(value),
+              reason => reject(reason)
+            )
+          } else {
+            resovle(result)
+          }
+        } catch (reason) {
+          reject(reason)
+        }
+      }
+
       // 如果进入then的时候状态未发生改变，放入回调队列
       if (self.state === PENDING) {
         self.callbacks.push({
+          // 在其中封装的目的是不仅是为了执行回调函数，也需要改返回Promise的状态
           onResolved() {
-            try {
-              const result = onResolved(self.data)
-              if (result instanceof Promise) {
-                result.then(
-                  value => resovle(value),
-                  reason => reject(reason)
-                )
-              } else {
-                resovle(result)
-              }
-            } catch (reason) {
-              reject(reason)
-            }
+            handle(onResolved)
           },
           onRejected() {
-            try {
-              const result = onRejected(self.data)
-              if (result instanceof Promise) {
-                result.then(
-                  value => resovle(value),
-                  reason => reject(reason)
-                )
-              } else {
-                resovle(result)
-              }
-            } catch (reason) {
-              reject(reason)
-            }
+            handle(onRejected)
           }
         })
       } else if (self.state === FULFILLED) {
         // 回调函数是异步执行
         setTimeout(() => {
-          /**
-           * 对于结果的result的处理分三种情况
-           * 1. onResolved执行出错 -> 使用try-catch捕获 后 reject
-           * 2. result 为一个非Promise值 直接resolve(result)
-           * 3. result 为一个Promise值 那么将要返回的新Promise的值就是result执行的结果
-           */
-          try {
-            const result = onResolved(self.data)
-            if (result instanceof Promise) {
-              result.then(
-                value => resovle(value),
-                reason => reject(reason)
-              )
-            } else {
-              resovle(result)
-            }
-          } catch (reason) {
-            reject(reason)
-          }
+          handle(onResolved)
         }, 0);
       } else {
         // 回调函数是异步执行
         setTimeout(() => {
-          try {
-            const result = onRejected(self.data)
-            if (result instanceof Promise) {
-              result.then(
-                value => resovle(value),
-                reason => reject(reason)
-              )
-            } else {
-              resovle(result)
-            }
-          } catch (reason) {
-            reject(reason)
-          }
+          handle(onRejected)
         }, 0);
       }
     })
