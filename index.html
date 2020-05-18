@@ -11,47 +11,19 @@
 <body>
   <script>
     new Promise((resolve, reject) => {
-      resolve(1)
-    }).then(
-      res => 0
-    ).then(
-      res => console.log(res)
-    )
-
-    new Promise((resolve, reject) => {
-      resolve()
-    }).then(
-      res => {throw new Error('错误')}
-    ).then(
-      res => console.log(res),
-      reason => console.log(reason)
-    )
-
-    new Promise((resolve, reject) => {
-      resolve(1)
+      setTimeout(() => {
+        console.log('resolve 1')
+        resolve(1)
+      }, 2000);
     }).then(
       res => (new Promise((resolve, reject) => {
         setTimeout(() => {
-          console.log('三秒后返回值才状态改变')
+          console.log('resolve 2')
           resolve(2)
-        }, 3000)
+        }, 1000);
       }))
     ).then(
       res => console.log(res)
-    )
-
-    new Promise((resolve, reject) => {
-      reject(3)
-    }).then(
-      value => { },
-      reason => (new Promise((resolve, reject) => {
-        setTimeout(() => {
-          console.log('三秒后返回值才状态改变')
-          resolve(4)
-        }, 3000)
-      }))
-    ).then(
-      res => console.log(res),
     )
 
   </script>
