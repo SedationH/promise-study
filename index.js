@@ -115,5 +115,31 @@ const
     })
   }
 
+  // 专门处理then只有reject的情况
+  Promise.prototype.catch = function (onRejected) {
+    this.then(undefined, onRejected)
+  }
+
+  // returns a Promise object that is resolved with a given value
+  // If the value is a promise, that promise is returned
+  // if the value is a thenable (i.e. has a "then" method),
+  //  the returned promise will "follow" that thenable, adopting its eventual state;
+  Promise.resolve = function (value) {
+    return new Promise((resolve, reject) => {
+      if (value instanceof Promise) {
+        value.then(
+          value => resolve(value)
+        )
+      } else {
+        resolve(value)
+      }
+    })
+  }
+
+  Promise.reject = function (reason) {
+    return new Promise((resolve, reject) => {
+      reject(reason)
+    })
+  }
   window.Promise = Promise
 })(window)

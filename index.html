@@ -10,18 +10,23 @@
 
 <body>
   <script>
-   new Promise((resolve,reject) => {
-     resolve(1)
-   }).then().then(
-     res => console.log(res)
-   )
+    new Promise((resolve, reject) => {
+      throw 3
+    }).then().catch(
+      reason => console.log(reason)
+    )
 
-   new Promise((resolve,reject) => {
-     reject(new Error('骗你的'))
-   }).then().then(
-     res => console.log(res),
-     reason => console.log(reason)
-   )
+    Promise.resolve(1).then(
+      value => console.log(value)
+    )
+
+    var original = Promise.resolve(33);
+    var cast = Promise.resolve(original);
+    cast.then(function (value) {
+      console.log('value: ' + value);
+    });
+    // 我的实现还不满足要求 应为true
+    console.log('original === cast ? ' + (original === cast)); 
   </script>
 </body>
 
