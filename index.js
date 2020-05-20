@@ -141,5 +141,41 @@ const
       reject(reason)
     })
   }
+
+  // It is typically used after having started multiple asynchronous
+  // tasks to run concurrently
+  // and having created promises for their results,
+  // so that one can wait for all the tasks being finished.
+  Promise.all = function (arr) {
+    // all处理的关键在与如何确认异步的任务全部完成
+    return new Promise((resolve, reject) => {
+      let values = new Array(arr.length)
+      let cnt = 0;
+      arr.forEach((value, index) => {
+        Promise.resolve(value).then(
+          res => {
+            cnt++
+            values[index] = res
+            if (cnt === arr.length) {
+              resolve(values)
+            }
+          },
+          reason => {
+            reject(reason)
+          }
+        )
+      })
+    })
+  }
+
+  // race谁先完成就直接结束呗
+  Promise.race = function (arr) {
+    return new Promise((resolve, reject) => {
+      arr.forEach(value => {
+        value.then(resolve,reject)
+      })
+    })
+  }
+
   window.Promise = Promise
 })(window)

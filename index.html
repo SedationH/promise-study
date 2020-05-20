@@ -10,23 +10,23 @@
 
 <body>
   <script>
-    new Promise((resolve, reject) => {
-      throw 3
-    }).then().catch(
-      reason => console.log(reason)
-    )
-
-    Promise.resolve(1).then(
-      value => console.log(value)
-    )
-
-    var original = Promise.resolve(33);
-    var cast = Promise.resolve(original);
-    cast.then(function (value) {
-      console.log('value: ' + value);
+    const promise1 = Promise.resolve(3);
+    const promise2 = 42;
+    const promise3 = new Promise(function (resolve, reject) {
+      setTimeout(resolve, 100, 'foo');
     });
-    // 我的实现还不满足要求 应为true
-    console.log('original === cast ? ' + (original === cast)); 
+    const promise4 = new Promise(function (resolve, reject) {
+      setTimeout(resolve, 20, 'aha');
+    });
+
+    Promise.all([promise1, promise2, promise3]).then(function (values) {
+      console.log(values);
+    });
+
+    Promise.race([promise3, promise4]).then(function (value) {
+      console.log(value); 
+      // aha more fast
+    });
   </script>
 </body>
 
